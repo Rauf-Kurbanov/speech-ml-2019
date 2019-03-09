@@ -18,9 +18,10 @@ class SupportedFormats(Enum):
     FLAC = ".flac"
 
 
-def add_noise(source_file: str, to_save_dir: str, noise_beep: str, noise_background: str,
+def add_noise(source_file_full_path: str, to_save_dir: str, source_file_name: str,
+              noise_beep: str, noise_background: str,
               coef: float, format: SupportedFormats):
-    data = load_audio_sec(source_file)
+    data = load_audio_sec(source_file_full_path)
     noise_beep = load_audio_sec(noise_beep)
     noise_backgroud = load_audio_sec(noise_background)
 
@@ -28,10 +29,10 @@ def add_noise(source_file: str, to_save_dir: str, noise_beep: str, noise_backgro
     data_with_noise = data_with_noise + coef * noise_backgroud
 
     if format == SupportedFormats.WAV:
-        librosa.output.write_wav(to_save_dir + source_file[:-4] + "_with_noise.wav",
+        librosa.output.write_wav(to_save_dir + source_file_name[:-4] + "_with_noise.wav",
                                  data_with_noise, sr=16000)
     elif format == SupportedFormats.FLAC:
-        librosa.output.write_wav(to_save_dir + source_file[:-5] + "_with_noise.flac",
+        librosa.output.write_wav(to_save_dir + source_file_name[:-5] + "_with_noise.flac",
                                  data_with_noise, sr=16000)
 
 
@@ -41,12 +42,12 @@ if __name__ == '__main__':
     source_files = listdir(source_dir)
     for file in source_files:
         if file.endswith(".wav"):
-            add_noise(file, "output/",
-                      "../bg_noise/FRESOUND_BEEPS_gsm/dev/105000_559685-lq.wav",
-                      "../bg_noise/freesound_background_gsm/noise-free-sound-0030.wav",
+            add_noise(source_dir + file, "output/", file,
+                      "noise/15482_45914-lq.wav",
+                      "noise/noise-free-sound-0030.wav",
                       0.5, SupportedFormats.WAV)
         elif file.endswith(".flac"):
-            add_noise(file, "output/",
-                      "../bg_noise/FRESOUND_BEEPS_gsm/dev/105000_559685-lq.wav",
-                      "../bg_noise/freesound_background_gsm/noise-free-sound-0030.wav",
+            add_noise(source_dir + file, "output/", file,
+                      "noise/15482_45914-lq.wav",
+                      "noise/noise-free-sound-0030.wav",
                       0.5, SupportedFormats.FLAC)
