@@ -2,7 +2,12 @@ import os
 import tempfile
 
 import pandas as pd
-import laughter_classification.psf_features as psf_features
+
+
+import librosa
+import librosa.display
+import numpy as np
+from numpy import max as npmax
 
 
 class FeatureExtractor:
@@ -13,7 +18,15 @@ class FeatureExtractor:
         :param wav_path: string, path to .wav file
         :return: pandas.DataFrame with features of shape (n_chunks, n_features)
         """
-        raise NotImplementedError("Should have implemented this")
+        y, sr = librosa.load(wav_path)
+        S = librosa.feature.melspectrogram(y, sr=sr, n_mels=128)
+        log_S = librosa.power_to_db(S, ref=npmax)
+        
+        mfcc = librosa.feature.mfcc(S=log_S, n_mfcc=13)
+        delta_mfcc  = librosa.feature.delta(mfcc)
+        delta2_mfcc = librosa.feature.delta(mfcc, order=2)
+        M = np.vstack([mfcc, delta_mfcc, delta2_mfcc, log_S]).T
+        return pd.DataFrame(M)
 
 
 class PyAAExtractor(FeatureExtractor):
